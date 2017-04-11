@@ -1,0 +1,128 @@
+{% extends "main/header.html" %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+
+      <div class="col-lg-12">
+        <center><h1 class="page-header">Pong</h1></center>
+      </div>
+
+      <center><button id ="button" onclick="reset()">Restart</button></center>
+      <center><div id="canvas"></div></center>
+      <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.22/p5.min.js"></script>
+      <script language="javascript" type="text/javascript" src="https://rawgit.com/molleindustria/p5.play/master/lib/p5.play.js"></script>
+      <script>
+    	//implementation of Pong using p5.js/p5.play.js libraries
+    	var player, playerPoints, computer, computerPoints, ball, gameCealing, gameFloor;
+    	var maxSpeed = 10;
+    	function reset(){
+    	  ball.position.x = width/2;
+    	  ball.position.y = height/2;
+    	  ball.setSpeed(maxSpeed, -180);
+          playerPoints=0;
+    	  computerPoints=0;
+    	  loop();
+    	}
+    	function setup() {
+    	  var canvas = createCanvas(600,300);
+          canvas.parent('canvas');
+
+    	  player = createSprite(30, height/2, 10, 60);
+    	  player.immovable = true;
+    	  player.shapeColor = color(255,255,255);
+    	  playerPoints=0;
+
+    	  computer = createSprite(width-28, height/2, 10, 60);
+    	  computer.immovable = true;
+    	  computer.shapeColor = color(255,255,255);
+    	  computerPoints=0;
+
+    	  gameCealing = createSprite(width/2, -30/2, width, 30);
+    	  gameCealing.immovable = true;
+
+    	  gameFloor = createSprite(width/2, height+30/2, width, 30);
+    	  gameFloor.immovable = true;
+
+    	  ball = createSprite(width/2, height/2, 15, 15);
+    	  ball.maxSpeed = maxSpeed;
+    	  ball.shapeColor = color(255,255,255);
+    	  ball.setSpeed(maxSpeed, -180);
+
+    	}
+    	function draw() {
+    	  background(0);
+    	  textSize(30);
+    	  textFont("Arial");
+    	  text(playerPoints, width/4, 35);
+    	  text(computerPoints, (width/4)*3, 35);
+    	  if(computerPoints>=10)
+    	      text("Player 2 Wins!", width/3+10, height/2);
+    	  if(playerPoints>=10)
+    	      text("Player 1 Wins!", width/3+10, height/2);
+
+    	  for(var y=0;y < height;y += height/20)
+    	    rect((width - 4)*0.5, y+(height/20)*0.25, 4, (height/20)*0.5);//draw dashed line down centre
+
+    	  if(keyDown(UP_ARROW))
+    	    player.position.y = constrain(player.position.y-10, player.height/2, height-player.height/2);
+    	  if(keyDown(DOWN_ARROW))
+    	    player.position.y = constrain(player.position.y+10, player.height/2, height-player.height/2);
+
+    	  var desty = ball.position.y - (computer.height - ball.height)*0.5;
+    	  computer.position.y =constrain(computer.position.y+(desty - computer.position.y) * 0.1,
+    					 computer.height/2,
+    					 height-computer.height/2);
+
+    	  ball.bounce(gameCealing);
+    	  ball.bounce(gameFloor);
+
+    	  if(ball.bounce(player)) {
+    	    var swing = (ball.position.y-player.position.y)/3;
+    	    ball.setSpeed(maxSpeed, ball.getDirection()+swing);
+    	  }
+    	  if(ball.bounce(computer)) {
+    	    var swing = (ball.position.y-computer.position.y)/3;
+    	    ball.setSpeed(maxSpeed, ball.getDirection()-swing);
+    	  }
+
+    	  if(ball.position.x<0) {
+    	    ball.position.x = player.position.x+player.width;
+    	    ball.position.y = (height - ball.height)*Math.random();
+    	    ball.setSpeed(maxSpeed, 0);
+    	    computerPoints++;
+    	    if(computerPoints>=10){
+    	      redraw();
+    	      noLoop();
+    	    }
+    	  }
+
+    	  if(ball.position.x>width) {
+    	    ball.position.x = computer.position.x-ball.height;
+    	    ball.position.y = (height - ball.height)*Math.random();
+    	    ball.setSpeed(maxSpeed, 180);
+    	    playerPoints++;
+    	    if(playerPoints>=10){
+    	      redraw();
+    	      noLoop();
+    	    }
+    	  }
+
+    	  drawSprites();
+    	}
+      </script>
+
+      <div class="col-lg-12">
+        <center><h1 class="page-footer">Instructions</h1></center>
+      </div>
+
+      <div class="col-lg-12">
+        <center><font size="4">Use the up and down arrow keys to move the paddle. Try to score 10 points against the AI to win.
+        </font></center>
+      </div>
+
+    </div>
+
+    <hr>
+  </div>
+{% endblock %}
